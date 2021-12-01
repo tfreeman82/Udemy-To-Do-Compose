@@ -1,14 +1,19 @@
 package com.tfreeman.udemyto_docompose.navigation.destinations
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.tfreeman.udemyto_docompose.ui.screens.list.ListScreen
+import com.tfreeman.udemyto_docompose.ui.viewmodels.SharedViewModel
 import com.tfreeman.udemyto_docompose.util.Constants.LIST_ARGUMENT_KEY
 import com.tfreeman.udemyto_docompose.util.Constants.LIST_SCREEN
 
+@ExperimentalMaterialApi
 fun NavGraphBuilder.listComposable(
-    navigateToTaskScreen: (Int) -> Unit
+    navigateToTaskScreen: (taskId: Int) -> Unit,
+sharedViewModel: SharedViewModel
 ) {
     composable(
         route = LIST_SCREEN,
@@ -16,6 +21,8 @@ fun NavGraphBuilder.listComposable(
             type = NavType.StringType
         })
     ) {
-
+        ListScreen(
+            navigateToTaskScreen = navigateToTaskScreen,
+        sharedViewModel = sharedViewModel)
     }
 }
