@@ -15,29 +15,48 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.tfreeman.udemyto_docompose.data.models.Priority
 import com.tfreeman.udemyto_docompose.data.models.ToDoTask
 import com.tfreeman.udemyto_docompose.ui.theme.*
 import com.tfreeman.udemyto_docompose.util.RequestState
+import com.tfreeman.udemyto_docompose.util.SearchAppBarState
 
 @ExperimentalMaterialApi
 @Composable
 fun ListContent(
-    tasks: RequestState<List<ToDoTask>>,
+    allTasks: RequestState<List<ToDoTask>>,
+    searchedTasks: RequestState<List<ToDoTask>>,
+    searchAppBarState: SearchAppBarState,
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-  if (tasks is RequestState.Success) {
-      if (tasks.data.isEmpty()) {
-          EmptyContent()
-      } else {
-          DisplayTasks(
-              tasks = tasks.data,
-              navigateToTaskScreen = navigateToTaskScreen
-          )
+  if (searchAppBarState == SearchAppBarState.TRIGGERED) {
+    if (searchedTasks is RequestState.Success) {
+        HandleListContent(
+            tasks = searchedTasks.data,
+            navigateToTaskScreen = navigateToTaskScreen)
+    }
+  } else {
+      if (allTasks is RequestState.Success) {
+          HandleListContent(tasks = allTasks.data, navigateToTaskScreen = navigateToTaskScreen)
       }
   }
         
+}
+
+@ExperimentalMaterialApi
+@Composable
+fun HandleListContent(
+    tasks: List<ToDoTask>,
+    navigateToTaskScreen: (taskId: Int) -> Unit
+) {
+    if (tasks.isEmpty()) {
+        EmptyContent()
+    } else {
+        DisplayTasks(
+            tasks = tasks,
+            navigateToTaskScreen = navigateToTaskScreen
+        )
+    }
 }
 
 @ExperimentalMaterialApi

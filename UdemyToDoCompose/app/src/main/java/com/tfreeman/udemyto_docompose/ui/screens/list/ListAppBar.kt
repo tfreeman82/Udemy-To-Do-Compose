@@ -18,15 +18,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.tfreeman.udemyto_docompose.R
 import com.tfreeman.udemyto_docompose.components.PriorityItem
 import com.tfreeman.udemyto_docompose.data.models.Priority
 import com.tfreeman.udemyto_docompose.ui.theme.*
 import com.tfreeman.udemyto_docompose.ui.viewmodels.SharedViewModel
+import com.tfreeman.udemyto_docompose.util.Action
 import com.tfreeman.udemyto_docompose.util.SearchAppBarState
 import com.tfreeman.udemyto_docompose.util.TrailingIconState
-import kotlin.math.exp
 
 @Composable
 fun ListAppBar(
@@ -43,8 +42,8 @@ fun ListAppBar(
                 onSortClicked = { priority ->
 
                 },
-                onDeleteClicked = {
-
+                onDeleteAllClicked = {
+                    sharedViewModel.action.value = Action.DELETE_ALL
                 }
             )
         }
@@ -58,7 +57,9 @@ fun ListAppBar(
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.CLOSED
                     sharedViewModel.searchTextState.value = ""
                 },
-                onSearchClicked = {}
+                onSearchClicked = {
+                    sharedViewModel.searchDatabase(searchQuery = it)
+                }
             )
         }
 
@@ -70,7 +71,7 @@ fun ListAppBar(
 fun DefaultListAppBar(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteClicked: () -> Unit
+    onDeleteAllClicked: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -83,7 +84,7 @@ fun DefaultListAppBar(
             ListAppBarActions(
                 onSearchClicked = onSearchClicked,
                 onSortClicked = onSortClicked,
-                onDeleteClicked = onDeleteClicked
+                onDeleteAllClicked = onDeleteAllClicked
             )
         },
         backgroundColor = MaterialTheme.colors.topAppBarBackgroundColor
@@ -94,11 +95,11 @@ fun DefaultListAppBar(
 fun ListAppBarActions(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteClicked: () -> Unit
+    onDeleteAllClicked: () -> Unit
 ) {
     SearchAction(onSearchClicked = onSearchClicked)
     SortAction(onSortClicked = onSortClicked)
-    DeleteAllAction(onDeleteClicked = onDeleteClicked)
+    DeleteAllAction(onDeleteAllClicked = onDeleteAllClicked)
 }
 
 @Composable
@@ -162,7 +163,7 @@ fun SortAction(
 
 @Composable
 fun DeleteAllAction(
-    onDeleteClicked: () -> Unit
+    onDeleteAllClicked: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -181,7 +182,7 @@ fun DeleteAllAction(
             }) {
             DropdownMenuItem(onClick = {
                 expanded = false
-                onDeleteClicked()
+                onDeleteAllClicked()
             }) {
                 Text(
                     text = stringResource(id = R.string.delete_all_action),
@@ -303,7 +304,7 @@ private fun DefaultListAppBarPreview() {
     DefaultListAppBar(
         onSearchClicked = {},
         onSortClicked = { priority -> },
-        onDeleteClicked = { }
+        onDeleteAllClicked = { }
     )
 }
 
