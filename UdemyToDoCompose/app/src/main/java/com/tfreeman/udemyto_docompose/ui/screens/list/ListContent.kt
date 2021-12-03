@@ -26,21 +26,47 @@ import com.tfreeman.udemyto_docompose.util.SearchAppBarState
 fun ListContent(
     allTasks: RequestState<List<ToDoTask>>,
     searchedTasks: RequestState<List<ToDoTask>>,
+    lowPriorityTasks: List<ToDoTask>,
+    highPriorityTasks: List<ToDoTask>,
+    sortState: RequestState<Priority>,
     searchAppBarState: SearchAppBarState,
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-  if (searchAppBarState == SearchAppBarState.TRIGGERED) {
-    if (searchedTasks is RequestState.Success) {
-        HandleListContent(
-            tasks = searchedTasks.data,
-            navigateToTaskScreen = navigateToTaskScreen)
+
+    if (sortState is RequestState.Success) {
+        when {
+            searchAppBarState == SearchAppBarState.TRIGGERED -> {
+                if (searchedTasks is RequestState.Success) {
+                    HandleListContent(
+                        tasks = searchedTasks.data,
+                        navigateToTaskScreen = navigateToTaskScreen
+                    )
+                }
+            }
+            sortState.data == Priority.NONE -> {
+                if (allTasks is RequestState.Success) {
+                    HandleListContent(
+                        tasks = allTasks.data,
+                        navigateToTaskScreen = navigateToTaskScreen
+                    )
+                }
+            }
+            sortState.data == Priority.LOW -> {
+                HandleListContent(
+                    tasks = lowPriorityTasks,
+                    navigateToTaskScreen = navigateToTaskScreen
+                )
+            }
+            sortState.data == Priority.HIGH -> {
+                HandleListContent(
+                    tasks = highPriorityTasks,
+                    navigateToTaskScreen = navigateToTaskScreen
+                )
+            }
+        }
+
     }
-  } else {
-      if (allTasks is RequestState.Success) {
-          HandleListContent(tasks = allTasks.data, navigateToTaskScreen = navigateToTaskScreen)
-      }
-  }
-        
+
 }
 
 @ExperimentalMaterialApi
@@ -110,10 +136,12 @@ fun TaskItem(
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.TopEnd) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.TopEnd
+                ) {
                     Canvas(modifier = Modifier.size(PRIORITY_INDICATOR_SIZE)) {
                         drawCircle(color = toDoTask.priority.color)
                     }
@@ -137,10 +165,12 @@ fun TaskItem(
 @Preview
 fun TaskItemPreview() {
     TaskItem(
-        toDoTask = ToDoTask(id = 0,
+        toDoTask = ToDoTask(
+            id = 0,
             title = "Title",
             description = "Some random text",
-            priority = Priority.MEDIUM),
+            priority = Priority.MEDIUM
+        ),
         navigateToTaskScreen = {}
 
     )
